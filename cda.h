@@ -9,15 +9,7 @@
 
 #include <stdio.h>
 
-typedef struct cda 
-{
-    int size;
-    int frontIndex;
-    int backIndex;
-    int capacity;
-    void **data;
-    void (*display)(FILE *, void *);
-} CDA;
+typedef struct cda CDA;
 
 extern CDA *newCDA(void (*d)(FILE *, void *));
 extern void insertCDAfront(CDA *items, void *value);

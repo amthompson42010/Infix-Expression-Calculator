@@ -1,5 +1,5 @@
 OBJSDA = integer.o da.o test-da.o
-OBJSCDA = integer.o cda.o test-cda.o
+OBJSCDA = integer.o cda.o cda-test.o
 OBJSQ = integer.o queue.o test-queue.o cda.o
 OBJSSK = integer.o stack.o test-stack.o da.o
 OOPTS = -Wall -Wextra -g -c -std=c99
@@ -9,8 +9,8 @@ OBJSQB = integer.o queue.o queue-test.o cda.o
 test-da: $(OBJSDA)
 	gcc $(LOPTS) -o test-da $(OBJSDA)
 
-test-cda: $(OBJSCDA)
-	gcc $(LOPTS) -o test-cda $(OBJSCDA)
+cda-test: $(OBJSCDA)
+	gcc $(LOPTS) -o cda-test $(OBJSCDA)
 
 test-queue: $(OBJSQ)
 	gcc $(LOPTS) -o test-queue $(OBJSQ)
@@ -39,8 +39,8 @@ integer.o: integer.c integer.h
 test-da.o: test-da.c integer.h da.c
 	gcc $(OOPTS) test-da.c
 
-test-cda.o: test-cda.c integer.h cda.c
-	gcc $(OOPTS) test-cda.c
+cda-test.o: cda-test.c integer.h cda.c
+	gcc $(OOPTS) cda-test.c
 
 test-queue.o: test-queue.c integer.h cda.c queue.h
 	gcc $(OOPTS) test-queue.c
@@ -52,7 +52,7 @@ queue-test.o: queue-test.c integer.h cda.c queue.h
 	gcc $(OOPTS) queue-test.c
 
 clean:
-	rm -f *.o test-da test-cda test-queue test-stack
+	rm -f *.o test-da cda-test test-queue test-stack test-cda
 
 test:
 	echo
@@ -61,8 +61,8 @@ test:
 	./test-da
 	echo
 	echo "Testing circular dynamic array"
-	make test-cda
-	./test-cda
+	make cda-test
+	./cda-test
 	echo
 	echo "Testing queue"
 	make test-queue

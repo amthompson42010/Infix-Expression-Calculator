@@ -12,6 +12,7 @@
 typedef struct BST BST;
 
 extern BST *newBST(void (*display)(FILE *, void *, void *), int (*comparator)(void *, void *));
+
 extern void insertBST(BST *tree, void *key, void *value);
 extern void *findBST(BST *tree, void *key);
 extern int sizeBST(BST *tree);

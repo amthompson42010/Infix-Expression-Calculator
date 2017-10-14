@@ -16,13 +16,7 @@
  * capacity -> is the dynamic array's capacity
  * display -> is the dynamic array's display function
  */
-typedef struct da
-{
-    int size;
-    void **data;
-    int capacity;
-    void (*display)(FILE *, void *);
-} DA;
+typedef struct da DA;
 
 extern DA *newDA(void (*d)(FILE *, void *));
 extern void insertDA(DA *items, void *value);
