@@ -45,7 +45,7 @@ queue.o: queue.c queue.h
 	gcc $(OPTS) -c queue.c
 
 clean:
-	rm -rf *.o $(TESTEXES) runBSTtest
+	rm -rf *.o $(TESTEXES) runBSTtest matilda-test
 
 test-bst.o: bst.o
 	gcc $(OPTS) test-bst.c scanner.o real.o string.o bst.o -lm -o testBST
