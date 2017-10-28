@@ -4,73 +4,66 @@
  * @description: Functions that can perform operations on the stack
  */
 
-#include "stack.h"
-#include "da.h"
+#include <stdio.h>
+#include <string.h>
 #include <assert.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include "stack.h"
 
-struct stack 
-{
-    DA *stackArray;
-    void (*display)(FILE *, void*);
+struct stack {
+  DA *vector;
+  void (*display)(FILE *, void*);
 };
 
-STACK *newSTACK(void (*d)(FILE *, void *))
-{
-    assert(sizeof(STACK) != 0);
+STACK *newSTACK(void (*d)(FILE *, void *)) {
+  assert( sizeof(STACK) != 0 );
 
-    STACK *myStack = malloc(sizeof(STACK));
-    myStack->stackArray = newDA(d);
-    myStack->display = d;
+  STACK *myStack = malloc( sizeof(STACK) );
+  myStack->vector = newDA(d);
+  myStack->display = d;
 
-    return myStack;
+  return myStack;
 }
 
-void push(STACK *items, void *value)
-{
-    insertDA(items->stackArray, value);
+void push(STACK *items, void *value) {
+  insertDA(items->vector, value);
 }
 
-void *pop(STACK *items)
-{
-    assert(sizeDA(items->stackArray) > 0);
-    void *popValue = removeDA(items->stackArray);
-    return popValue;
+void *pop(STACK *items) {
+  assert( sizeDA(items->vector) > 0 );
+  void *popVal = removeDA(items->vector);
+  return popVal;
 }
 
-void *peekSTACK(STACK *items)
-{
-    assert(sizeDA(items->stackArray) > 0);
-    int index = sizeDA(items->stackArray);
-    return getDA(items->stackArray, index - 1);
+void *peekSTACK(STACK *items) {
+  assert( sizeDA(items->vector) > 0 );
+  int index = sizeDA(items->vector);
+  return getDA(items->vector, index - 1);
 }
 
-int sizeSTACK(STACK *items)
-{
-    return sizeDA(items->stackArray);
+int sizeSTACK(STACK *items) {
+  return sizeDA(items->vector);
 }
 
-void displaySTACK(FILE *fp, STACK *items)
-{
-    fprintf(fp, "|");
+void displaySTACK(FILE *fp, STACK *items) {
 
-    if(sizeDA(items->stackArray) != 0)
-    {
-        int arraySize = sizeDA(items->stackArray);
-        int i;
-        for(i = 0; i < arraySize; i++)
-        {
-            void *elem = getDA(items->stackArray, (arraySize - 1) - i);
-            items->display(fp, elem);
-            if(i != sizeSTACK(items) - 1) { fprintf(fp, ","); }
-        }
+
+  fprintf(fp, "|");
+
+  if (sizeDA(items->vector) != 0) {
+    int vectorSize = sizeDA(items->vector);
+    int i;
+    for (i = 0; i < vectorSize; i++ ) {
+      void *element = getDA(items->vector, (vectorSize - 1) - i);
+      items->display(fp, element);
+      if (i != sizeSTACK(items) - 1) { fprintf(fp, ","); }
     }
+  }
 
-    fprintf(fp, "|");
+  fprintf(fp, "|");
+
 }
 
-void visualizeSTACK(FILE *fp, STACK *items)
-{
-    displayDA(fp, items->stackArray);
+void visualizeSTACK(FILE *fp, STACK *items) {
+  displayDA(fp, items->vector);
 }

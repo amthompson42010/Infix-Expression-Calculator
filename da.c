@@ -33,7 +33,6 @@ DA *newDA(void (*d)(FILE *, void *)) {
 void insertDA(DA *items, void *value) {
   assert(sizeof(void*) * items->size * 2 != 0);
 
-  //If there is room in the array for the insert
   if ( items->filledIndices < items->size ) {
     items->array[items->filledIndices] = value;
     items->filledIndices += 1;
@@ -59,7 +58,7 @@ void *removeDA(DA *items) {
   items->array[items->filledIndices-1] = NULL;
   items->filledIndices -= 1;
 
-  if (items->filledIndices < items->size * .25) {
+  if (items->filledIndices < items->size * .25 && items->size != 1) {
     items->array = realloc( items->array, (items->size/2) * sizeof(void*) );
     items->size /= 2;
   }
@@ -69,6 +68,7 @@ void *removeDA(DA *items) {
 
 
 void unionDA(DA *recipient, DA *donor) {
+
   int i;
   for (i = 0; i < donor->filledIndices; i++) {
     insertDA(recipient, donor->array[i]);
@@ -85,7 +85,7 @@ void *getDA(DA *items, int index) {
 }
 
 void *setDA(DA *items, int index, void *value) {
-  assert(index >= 0 && index <= items->filledIndices);
+  assert(index >= 0 && index <= items->filledIndices);  
 
   void *replacedVal;
 
@@ -107,13 +107,8 @@ void **extractDA(DA *items) {
   }
    assert( items->filledIndices * sizeof(void*) != 0 );
 
-   void **newArr = malloc( items->size * sizeof(void *));
-   int i;
-   for (i = 0; i < items->size; i++) {
-    newArr[i] = items->array[i];
-   }
-
    items->array = realloc( items->array, items->filledIndices * sizeof(void*) );
+   void **newArr = items->array;
    items->array = realloc( items->array, sizeof(void*) );
    items->size = 1;
    items->filledIndices = 0;
