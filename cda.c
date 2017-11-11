@@ -53,7 +53,6 @@ void insertCDAfront(CDA *items, void *value) {
       }
     }
     else {
-      //If there is no room in the array
       void **tmp = malloc(items->size * 2 * sizeof(void*));
 
       int i;
@@ -80,17 +79,11 @@ void insertCDAfront(CDA *items, void *value) {
 void insertCDAback(CDA *items, void *value) {
   assert( items->size * 2 * sizeof(void*) != 0 );
 
-//  printf("items->filledIndices is: %d\n", items->filledIndices);
   if (items->filledIndices == 0) {
-/******************************************************************************/
     items->array[0] = value;
-/******************************************************************************/
-    items->backIndex = 0;
-    items->frontIndex = 0;
   }
   else {
     if (items->filledIndices < items->size) {
-      //If there is room in the array
       if (items->backIndex == items->size - 1) {
         items->backIndex = 0;
         items->array[items->backIndex] = value;
@@ -101,7 +94,6 @@ void insertCDAback(CDA *items, void *value) {
       }
     }
     else {
-      //Following code doubles size and then copies values w/ frontIndex = 0
       void **tmp = malloc(items->size * 2 * sizeof(void*));
 
       int i;
@@ -137,13 +129,7 @@ void *removeCDAfront(CDA *items) {
   }
   else {
     if (items->filledIndices - 1 < .25 * items->size) {
-      /*
-       *The following code creates a new tmpArray and fills it with all the non NULL
-       *values in the original array. It then cuts the size of the items->array (the
-       *actual object) by /2. It then repopulates the resized array with tmpArray, so
-       *every resized array will have a frontIndex of 0 and a backIndex of filledIndices
-       *minus one. Removing the requested value happens after this "if" code block.
-       */
+      
       void **tmp = malloc ( items->size/2 * sizeof(void*) );
 
       int i;
@@ -184,13 +170,6 @@ void *removeCDAback(CDA *items) {
 
   else {
     if (items->filledIndices - 1 < .25 * items->size) {
-      /*
-       *The following code creates a new tmpArray and fills it with all the non NULL
-       *values in the original array. It then cuts the size of the items->array (the
-       *actual object) by /2. It then repopulates the resized array with tmpArray, so
-       *every resized array will have a frontIndex of 0 and a backIndex of filledIndices
-       *minus one. Removing the requested value happens after this "if" code block.
-       */
 
       void **tmp = malloc ( items->size/2 * sizeof(void*) );
 
@@ -217,15 +196,7 @@ void *removeCDAback(CDA *items) {
   }
 
   items->filledIndices -= 1;
-/************************************************************************************/
-/*
-  printf("After removeCDAback(), the following: \n");
-  printf("items->filledIndices = %d\n", items->filledIndices);
-  printf("items->size = %d\n", items->size);
-  printf("frontIndex = %d\n", items->frontIndex);
-  printf("backIndex = %d\n", items->backIndex);
-*/
-/************************************************************************************/
+
   return valToReturn;
 }
 
@@ -242,22 +213,10 @@ void unionCDA(CDA *recipient,CDA *donor) {
 
   int index = donor->frontIndex;
 
-//  printf("index is: %d\n", index);
-//  printf("element is: %d\n", donor->array[index]);
-
   int i;
 
-//  printf("donor is: \n");
-//  visualizeCDA(stdout, donor);
-
-//  printf("\nrecip is: \n");
-//  visualizeCDA(stdout, recipient);
-//  printf("\n");
-
   for (i = 0; i < donor->filledIndices; i++) {
-//    printf("run %d\n", i);
     insertCDAback(recipient, donor->array[index]);
-//    printf("after insert %d\n", i);
     if (index + 1 == donor->size) { index = 0; }
     else { index += 1; }
   }
@@ -312,7 +271,6 @@ void **extractCDA(CDA *items) {
     removeCDAback(items);
   }
 
-//  items->array = realloc( items->array, sizeof(void*) );
 
   items->size = 1;
   items->frontIndex = 0;
