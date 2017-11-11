@@ -53,13 +53,14 @@ void insertDA(DA *items, void *value) {
 }
 
 void *removeDA(DA *items) {
+  //FIXME: The rubric says that the array should never shrink below the size of 1...what about initiaizing it to size 0?
   assert(items->filledIndices > 0);
 
   void *tmp = items->array[items->filledIndices-1];
   items->array[items->filledIndices-1] = NULL;
   items->filledIndices -= 1;
 
-  if (items->filledIndices < items->size * .25) {
+  if (items->filledIndices < items->size * .25 && items->size != 1) {
     items->array = realloc( items->array, (items->size/2) * sizeof(void*) );
     items->size /= 2;
   }
@@ -69,6 +70,13 @@ void *removeDA(DA *items) {
 
 
 void unionDA(DA *recipient, DA *donor) {
+//  int totalSize = recipient->size + donor->size;
+//  int totalFilled = recipient->size + donor->size;
+/*
+  recipient->array = realloc( recipient->array, totalSize * sizeof(void*) );
+  recipient->size = totalSize;
+*/
+
   int i;
   for (i = 0; i < donor->filledIndices; i++) {
     insertDA(recipient, donor->array[i]);
@@ -85,7 +93,7 @@ void *getDA(DA *items, int index) {
 }
 
 void *setDA(DA *items, int index, void *value) {
-  assert(index >= 0 && index <= items->filledIndices);
+  assert(index >= 0 && index <= items->filledIndices);  //FIXME: Add assertion that the index shall be >= 0 and <= size
 
   void *replacedVal;
 
@@ -107,13 +115,8 @@ void **extractDA(DA *items) {
   }
    assert( items->filledIndices * sizeof(void*) != 0 );
 
-   void **newArr = malloc( items->size * sizeof(void *));
-   int i;
-   for (i = 0; i < items->size; i++) {
-    newArr[i] = items->array[i];
-   }
-
    items->array = realloc( items->array, items->filledIndices * sizeof(void*) );
+   void **newArr = items->array;
    items->array = realloc( items->array, sizeof(void*) );
    items->size = 1;
    items->filledIndices = 0;

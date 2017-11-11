@@ -20,32 +20,36 @@
 #include "scanner.h"
 
 
-// All of these functions are defined below the main.
-static void readInFile(FILE *, QUEUE *);       
+/***** Private functions *****/
+static void readInFile(FILE *, QUEUE *);        //Reads in file to queue
 static int priorityOf(char c);
 
-void populateBST(FILE *, BST *);                
-void printInput(QUEUE *);                       
+/***** Public functions *****/
+void populateBST(FILE *, BST *);                //Sends only key/val pairs to bst
+void printInput(QUEUE *);                       //Prints out input (-i option)
 QUEUE *convertToPostfix(QUEUE *);
-QUEUE *getLastLine(QUEUE *);                    
-char *processPostFix(QUEUE *queue, BST *tree);  
+QUEUE *getLastLine(QUEUE *);                    //Returns queue containing last line
+double processPostFix(QUEUE *queue, BST *tree);  //Calculate final postfix number
 void displayPair(FILE *, void *, void *);
-STRING *evaluate(double, double, char);
+REAL *evaluate(double, double, char);
 
 
+
+/******************************************************************************/
+/*                                ---MAIN---                                  */
+/******************************************************************************/
 int main(int argc, char *argv[]) {
-  
-  // Author name option
+  /* If any of the commands are -v, print and exit */
   int i;
   for (i = 0; i < argc; i++) {
     if (strcmp(argv[i], "-v") == 0) { printf("Alexander Mark Thompson\n"); return 0; }
   }
 
 
-  
+  /* If matilda comes w/ no arguments (filenames or opts) */
   if (argc == 1) { return 0; }
 
-  
+  /* Initialize new BST and populate it with all key/value pairs */
   char *name = argv[argc - 1];
   FILE *fp1 = fopen(name, "r");
   BST *tree = newBST(displayPair, compareSTRING);
@@ -53,7 +57,7 @@ int main(int argc, char *argv[]) {
 
   if (fp1 != NULL) fclose(fp1);
 
-  // Iteratinig through the rest of the comand line arguments
+  /* Else run through and complete all command line opts */
   for (i = 0; i < argc; i++) {
     if (strcmp(argv[i], "-b") == 0) {
 
@@ -93,7 +97,7 @@ int main(int argc, char *argv[]) {
 
       while (sizeQUEUE(postFixExpr) > 0) {
         displaySTRING(stdout, dequeue(postFixExpr));
-        printf(" ");
+        if (sizeQUEUE(postFixExpr) >= 1) printf(" ");
       }
       printf("\n");
 
@@ -110,9 +114,10 @@ int main(int argc, char *argv[]) {
   QUEUE *finalLine = getLastLine(queue2);
   QUEUE *postExpr = convertToPostfix(finalLine);
 
+  /* Calculate final postfix number and print it */
   if (sizeQUEUE(postExpr) > 1) {
-    char *finalVal = processPostFix(postExpr, tree);
-    printf("%s\n", finalVal);
+    double finalVal = processPostFix(postExpr, tree);
+    printf("%lf\n", finalVal);
   }
   else {
     char *string = getSTRING(peekQUEUE(postExpr));
@@ -134,12 +139,12 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
+/******************************************************************************/
+/*                              --END MAIN--                                  */
+/******************************************************************************/
 
-/**
- * Function to read the file and enqueue into a queue.
- * @param fp    [file]
- * @param queue [queue to insert into]
- */
+
+/*************** Private functions ***************/
 static void readInFile(FILE *fp, QUEUE *queue) {
   char *str = readToken(fp);
 
@@ -149,10 +154,6 @@ static void readInFile(FILE *fp, QUEUE *queue) {
   }
 }
 
-/**
- * Function to determine the order of operations.
- * @param  c [operator]
- */
 static int priorityOf(char c) {
   switch (c) {
     case '+':
@@ -171,11 +172,7 @@ static int priorityOf(char c) {
   return -1;
 }
 
-/**
- * Function to populate a Binary Search Tree
- * @param fp   [fiel to read values from]
- * @param tree [binary search tree to populate]
- */
+/*************** Public functions **************/
 void populateBST(FILE *fp, BST *tree) {
   char *str = readToken(fp);
 
@@ -197,10 +194,7 @@ void populateBST(FILE *fp, BST *tree) {
   }
 }
 
-/**
- * Function to dispaly the input
- * @param queue [queue that the data is being read from]
- */
+/* I think the space printed at the end of this queue is printing the incorrect output!!! */
 void printInput(QUEUE *queue) {
   int i;
   int size = sizeQUEUE(queue);
@@ -218,10 +212,6 @@ void printInput(QUEUE *queue) {
   }
 }
 
-/**
- * Function to convert teh queue into post fix
- * @param  queue [queue with data to be used]
- */
 QUEUE *convertToPostfix(QUEUE *queue) {
   STACK *stack = newSTACK(displaySTRING);
   QUEUE *postFixQueue = newQUEUE(displaySTRING);
@@ -233,7 +223,9 @@ QUEUE *convertToPostfix(QUEUE *queue) {
     s = getSTRING(dequeue(queue));
     c = *s;
 
-    if (isalnum(c)) enqueue(postFixQueue, newSTRING(s));
+    if (isalnum(c)) { enqueue(postFixQueue, newSTRING(s)); }
+    else if (strlen(s) > 1 && c == '-') { enqueue(postFixQueue, newSTRING(s)); }
+    else if (strlen(s) > 1 && c == '.') { enqueue(postFixQueue, newSTRING(s)); }
     else if (c == '(') { push(stack, newSTRING(s)); }
     else if (c == ')') {
       if (sizeSTACK(stack) > 0) {
@@ -272,10 +264,6 @@ QUEUE *convertToPostfix(QUEUE *queue) {
   return postFixQueue;
 }
 
-/**
- * Function to get the last line in the queue.
- * @param  queue [queue with data to be used.]
- */
 QUEUE *getLastLine(QUEUE *queue) {
   STACK *fullStack = newSTACK(displaySTRING);
   STACK *smallStack = newSTACK(displaySTRING);
@@ -302,63 +290,52 @@ QUEUE *getLastLine(QUEUE *queue) {
   return lastLine;
 }
 
+double processPostFix(QUEUE *queue, BST *tree) {
+  STACK *stack = newSTACK(displayREAL);
 
-char *processPostFix(QUEUE *queue, BST *tree) {
-  STACK *stack = newSTACK(displaySTRING);
-
-  char *elem1;
-  char *elem2;
-  char c1, c2;
   double value1, value2;
 
   while (sizeQUEUE(queue) > 0) {
     char *str = getSTRING(peekQUEUE(queue));
     char c = *str;
 
-    if (isalnum(c)) push(stack, dequeue(queue));
-    else if (strlen(str) > 1 && str[0] == '-') push(stack, dequeue(queue));
+    if (isalnum(c)) {
+      if (isalpha(c)) {
+        REAL *r = findBST(tree, newSTRING(str));
+        push(stack, r);
+      }
+      else {
+        REAL *r = newREAL(atof(str));
+        push(stack, r);
+      }
+      dequeue(queue);
+    }
+    else if (strlen(str) > 1 && str[0] == '-') {
+      char *pushString = getSTRING(dequeue(queue));
+      REAL *r = newREAL(atof(pushString));
+      push(stack, r);
+    }
+    else if (strlen(str) > 1 && str[0] == '.') {
+      char *pushString = getSTRING(dequeue(queue));
+      REAL *r = newREAL(atof(pushString));
+      push(stack, r);
+    }
     else {
       if (sizeSTACK(stack) > 0) {
-        elem1 = getSTRING(pop(stack));
-        c1 = *elem1;
-        if (isalpha(c1)) {
-          REAL *r = findBST(tree, newSTRING(elem1));
-          if (r == NULL) {
-            printf("variable %s was not declared\n", elem1);
-            exit(0);
-          }
-          value1 = getREAL(r);
-        }
-        else {
-          if (elem1[0] == '-' && strlen(elem1) > 1) value1 = atof(elem1);
-          else value1 = atof(elem1);
-        }
+        value1 = getREAL(pop(stack));
       }
       if (sizeSTACK(stack) > 0) {
-        elem2 = getSTRING(pop(stack));
-        c2 = *elem2;
-        if (isalpha(c2)) {
-          REAL *r = findBST(tree, newSTRING(elem2));
-          if (r == NULL) {
-            printf("variable %s was not declared\n", elem2);
-            exit(0);
-          }
-          value2 = getREAL(r);
-
-        }
-        else {
-          if (elem2[0] == '-' && strlen(elem2) > 1) value2 = atof(elem2);
-          else value2 = atof(elem2);
-        }
+        value2 = getREAL(pop(stack));
       }
 
-      STRING *eval = evaluate(value1, value2, c);
+      REAL *eval = evaluate(value1, value2, c);
       push(stack, eval);
       dequeue(queue);
     }
   }
 
-  return getSTRING(pop(stack));
+  /* Pop and return final value */
+  return getREAL(pop(stack));
 }
 
 void displayPair(FILE *fp, void *key, void *value) {
@@ -367,9 +344,8 @@ void displayPair(FILE *fp, void *key, void *value) {
   displayREAL(fp, value);
 }
 
-STRING *evaluate(double a, double b, char c) {
+REAL *evaluate(double a, double b, char c) {
   double val;
-  char *str = malloc(sizeof(char *));
 
   switch (c) {
     case '+':
@@ -392,8 +368,5 @@ STRING *evaluate(double a, double b, char c) {
       break;
   }
 
-  sprintf(str, "%lf", val);
-  STRING *s = newSTRING(str);
-
-  return s;
+  return newREAL(val);
 }

@@ -38,3 +38,12 @@ void displayREAL(FILE *fp, void *v) {
 void freeREAL(REAL *r) {
   free(r);
 }
+
+int compareREAL(REAL *r1, REAL *r2) {
+  double val1 = getREAL(r1);
+  double val2 = getREAL(r2);
+
+  if (val1 < val2) return -1;
+  else if (val1 > val2) return 1;
+  else { return 0; }
+}
